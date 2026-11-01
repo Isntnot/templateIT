@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from argprs import parser
 from tps import getTemplateTps, getTPS
 from utils.creation import createFile
@@ -26,9 +27,7 @@ if not tps:
 d2t = getTemplateTps(tps[0])
 args = parser.parse_args()
 file = Path(args.filename).resolve() # Resolve to ensure absolute path matching
-print(file)
-# 3. Find matching template based on directory containment
-# 3. Find matching template based on directory containment
+
 template = None
 tps_dir = tps[0].parent  # The directory where the .tps file is located
 
@@ -40,7 +39,6 @@ for d, t in d2t.items():
     else:
       d_path = d_path.resolve()
 
-    print(f"Checking if {file} is in {d_path}: {matchDir(d_path, file)}")
     if matchDir(d_path, file):
         template = t
         break  # Stop at the first valid match
@@ -48,10 +46,7 @@ for d, t in d2t.items():
 if not template:
     raise FileNotFoundError(f"[TEMPLATEIT] No matching template directory found for file: {file}")
 
-print(f"Selected template: {template}")
-
 # 4. Read template and create file
-print(template)
 with open(str(template), "r") as f:
     source = f.read()
 createFile(args.filename, process_templater(source, file.name))
