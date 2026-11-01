@@ -85,6 +85,87 @@ cd vault/daily
 python /path/to/TemplateIT/main.py 2026-11-01.md
 ```
 
+## Running it from anywhere (symlink tutorial)
+
+Typing `python /path/to/TemplateIT/main.py` every time gets old. On Linux you can create a symbolic link (symlink) to `main.py` in a folder that is on your `PATH`, so you can just run `templateit note.md` from any directory.
+
+### What is a symlink?
+
+A symlink is a tiny file that points to another file or folder. Opening or running the link behaves as if you had used the original path. The syntax is:
+
+```bash
+ln -s TARGET LINK_NAME
+```
+
+- `TARGET` is the real file or folder (use an absolute path).
+- `LINK_NAME` is where the new link will be created.
+
+### Step by step
+
+1. Make `main.py` executable. It already has a `#!/usr/bin/env python3` line at the top, so this is all it needs:
+
+   ```bash
+   chmod +x /path/to/TemplateIT/main.py
+   ```
+
+2. Create a folder for your personal commands, if you don't have one:
+
+   ```bash
+   mkdir -p ~/.local/bin
+   ```
+
+3. Create the link:
+
+   ```bash
+   ln -s /path/to/TemplateIT/main.py ~/.local/bin/templateit
+   ```
+
+4. Check that `~/.local/bin` is on your `PATH`:
+
+   ```bash
+   echo "$PATH" | tr ':' '\n' | grep local/bin
+   ```
+
+   If nothing shows up, add this line to `~/.bashrc` (or `~/.zshrc`) and reload it:
+
+   ```bash
+   export PATH="$HOME/.local/bin:$PATH"
+   source ~/.bashrc
+   ```
+
+5. Use it from any folder:
+
+   ```bash
+   cd ~/vault/daily
+   templateit 2026-11-01.md
+   ```
+
+Python follows the symlink back to the real script, so the imports (`argprs`, `tps`, `utils`) keep working. The tool still uses your current working directory to look for `template.txt`, which is what you want.
+
+### Useful commands
+
+| Task | Command |
+| --- | --- |
+| See where a link points | `ls -l ~/.local/bin/templateit` |
+| Replace an existing link | `ln -sf /new/path/main.py ~/.local/bin/templateit` |
+| Remove the link (the original stays) | `rm ~/.local/bin/templateit` |
+| Link a folder instead of a file | `ln -s /path/to/real_folder ~/shortcut_name` |
+
+### Troubleshooting
+
+- **`command not found`**: `~/.local/bin` is not on your `PATH`. Redo step 4 and open a new terminal.
+- **`Permission denied`**: the script is not executable. Redo step 1.
+- **`bad interpreter` or `No such file`**: the link is broken, usually because the project was moved. Recreate it with `ln -sf`.
+- **`File exists` when creating the link**: a file with that name is already there. Use `-f` to replace it, or pick another name.
+
+### Alternative: a shell alias
+
+If you prefer not to create a link, add this to `~/.bashrc` or `~/.zshrc`:
+
+```bash
+alias templateit='python3 /path/to/TemplateIT/main.py'
+```
+
 ## Template syntax
 
 | Expression | Result |
